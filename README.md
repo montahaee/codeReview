@@ -2,7 +2,7 @@
 
 ## Overview
 
-Welcome to the **Project Name** repository. This repository contains a collection of different Java projects, each serving various purposes and showcasing different aspects of software development. These projects may range from small utilities to full-scale applications, covering different design patterns, testing techniques, and algorithms.
+Welcome to the **Code Review** repository. This repository contains a collection of different Java projects, each serving various purposes and showcasing different aspects of software development. These projects may range from small utilities to full-scale applications, covering different design patterns, testing techniques, and algorithms.
 
 Our goal is to continuously review and improve the quality, performance, and maintainability of each project within this repository.
 

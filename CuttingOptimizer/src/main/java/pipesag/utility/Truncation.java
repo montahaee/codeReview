@@ -10,15 +10,15 @@ import java.util.Locale;
 /**
  * Utility class for formatting numbers and strings with specific patterns.
  *
- * <p>The {@code CuttingFormater} class provides static methods to format double values or strings
+ * <p>The {@code Truncation} class provides static methods to format double values or strings
  * based on given formats and locale. This class cannot be instantiated.</p>
  */
-public class CuttingFormater {
+public class Truncation {
 
     /**
      * Private constructor to prevent instantiation of the utility class.
      */
-    private CuttingFormater(){}
+    private Truncation(){}
 
     /**
      * Formats a double value to two decimal places using the English locale.
