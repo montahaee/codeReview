@@ -15,7 +15,7 @@ public class SimpleFileInputReader implements InputReader {
 
     private static final Logger LOGGER = Logger.getLogger(SimpleFileInputReader.class.getName());
 
-    private File file;
+    private final File file;
 
     public SimpleFileInputReader(String filepath) throws FileAccessException {
         try {
@@ -46,7 +46,7 @@ public class SimpleFileInputReader implements InputReader {
     public List<String> getLines() throws IncorrectDataFormatException {
         List<String> lines = new ArrayList<>();
         try {
-            LOGGER.info("Reading file {}: " + file.getAbsolutePath());
+            LOGGER.info("Reading file \"{0}\": " + file.getAbsolutePath());
             FileReader fileReader = new FileReader(file);
             String line;
 
@@ -60,10 +60,10 @@ public class SimpleFileInputReader implements InputReader {
                     line = reader.readLine();
                 }
             } catch (FileNotFoundException e) {
-                LOGGER.log(Level.SEVERE, "Error: File {} not found", file.getAbsolutePath());
+                LOGGER.log(Level.SEVERE, "Error: File {0} not found", file.getAbsolutePath());
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "IOException when reading File: {}", file.getAbsolutePath());
+            LOGGER.log(Level.SEVERE, "IOException when reading File: {0}", file.getAbsolutePath());
             System.err.println(e.getMessage());
         }
         return lines;

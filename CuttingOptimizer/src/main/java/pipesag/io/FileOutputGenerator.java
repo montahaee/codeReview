@@ -46,11 +46,11 @@ public class FileOutputGenerator implements OutputGenerator {
      */
     @Override
     public void generate(Cutting cutting) {
-        LOGGER.info("Writing result to file {}" + filePath);
+        LOGGER.log(Level.INFO, "Writing result to file \"{0}\"", filePath.toString());
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filePath.toFile(), true)))) {
             writer.print(cutting.toString());
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error writing to file {}" + filePath, e);
+            LOGGER.log(Level.SEVERE, "Error writing to file \"{0}\"", new Object[]{filePath.toString(), e});
         }
     }
 }
