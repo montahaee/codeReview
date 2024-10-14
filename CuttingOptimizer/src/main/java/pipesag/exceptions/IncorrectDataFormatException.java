@@ -1,7 +1,7 @@
 package pipesag.exceptions;
 
 /**
- * IncorrectDataFormatException thrown when the providing data is wrongly formated.
+ * {@code IncorrectDataFormatException} thrown when the providing data is wrongly formated.
  */
 public class IncorrectDataFormatException extends Throwable {
 

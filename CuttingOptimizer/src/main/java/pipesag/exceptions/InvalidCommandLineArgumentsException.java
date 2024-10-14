@@ -1,5 +1,16 @@
 package pipesag.exceptions;
 
+/**
+ * This exception is thrown to indicate that there is an issue with the provided command-line arguments.
+ *
+ * <p>This exception can be used to signal various errors such as invalid format, missing required arguments,
+ * or unsupported values when parsing or processing command-line input.
+ *
+ * <p>It extends the {@code Exception} class, allowing it to be used as a checked exception in methods that
+ * handle command-line arguments.
+ *
+ * @see Exception
+ */
 public class InvalidCommandLineArgumentsException extends Exception {
 
     /**
