@@ -74,16 +74,20 @@ public class Processing {
      *
      * @return the total number of pieces.
      */
-    private double getNrCuttings() {
-        return cuttings.stream().mapToDouble(Cutting::getNumberPieces).sum();
+    public int getNrCuttings() {
+        return Cutting.sumNumberPieces(cuttings);
     }
+//    public int getNrCuttings() {
+//        return cuttings.stream().mapToInt(Cutting::getNumberPieces).sum();
+//    }
+
 
     /**
      * Calculates the total offcuts from all cuttings.
      *
      * @return the total offcuts.
      */
-    private double getOffcuts() {
+    public double getOffcuts() {
         return cuttings.stream().mapToDouble(Cutting::getOffcuts).sum();
     }
 
