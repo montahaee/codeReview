@@ -62,12 +62,20 @@ public class Order {
 
     /**
      * Adds a {@link Pipe} and its quantity to the order.
-     *
+     * If the {@code  pipe} exist already, its quantity
+     * in the corresponding item will be only added.
      * @param pipe the pipe to be added.
      * @param quantity the quantity of the pipe.
      */
     public void addItem(Pipe pipe, int quantity) {
-        items.add(Map.entry(pipe, quantity));
+//        boolean exists = items.stream().anyMatch(i -> i.getKey().equals(pipe));
+        Optional<Map.Entry<Pipe, Integer>> existingItem = items.stream().filter(item -> item.getKey().equals(pipe)).findFirst();
+        if (existingItem.isPresent()) {
+            Map.Entry<Pipe, Integer> item = existingItem.get();
+            item.setValue(item.getValue() + quantity);
+        } else {
+            items.add(new AbstractMap.SimpleEntry<>(pipe, quantity));
+        }
     }
 
     /**
