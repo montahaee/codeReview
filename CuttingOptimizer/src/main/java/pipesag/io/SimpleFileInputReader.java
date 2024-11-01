@@ -4,7 +4,6 @@ import pipesag.exceptions.FileAccessException;
 import pipesag.exceptions.IncorrectDataFormatException;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,5 +66,13 @@ public class SimpleFileInputReader implements InputReader {
             System.err.println(e.getMessage());
         }
         return lines;
+    }
+
+    /**
+     * Retrieves the absolute file if it exists.
+     * @return the absolute {@code file} if it exists; {@code null} otherwise
+     */
+    public File getFile() {
+        return file.exists() ? file.getAbsoluteFile() : null;
     }
 }
