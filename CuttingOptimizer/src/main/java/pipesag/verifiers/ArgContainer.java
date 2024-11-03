@@ -43,7 +43,7 @@ public class ArgContainer {
      * <p>It also contains constants to define readable argument formats and handles
      * any exceptions that may occur during the verification process.
      */
-    static class ArgsVerifier {
+    public static class ArgsVerifier {
 
         private static final Logger LOG = Logger.getLogger(ArgsVerifier.class.getName());
 
