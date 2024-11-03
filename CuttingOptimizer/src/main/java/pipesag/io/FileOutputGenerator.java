@@ -1,6 +1,7 @@
 package pipesag.io;
 
 import pipesag.datastructure.Cutting;
+import pipesag.datastructure.Processing;
 import pipesag.exceptions.FileAccessException;
 
 import java.io.BufferedWriter;
@@ -40,15 +41,15 @@ public class FileOutputGenerator implements OutputGenerator {
     }
 
     /**
-     * Generates an output by writing the {@link Cutting} data to the specified file.
+     * Generates an output by writing the {@link Processing} data to the specified file.
      *
-     * @param cutting the data to be written to the output file
+     * @param process the data to be written to the output file
      */
     @Override
-    public void generate(Cutting cutting) {
+    public void generate(Processing process) {
         LOGGER.log(Level.INFO, "Writing result to file \"{0}\"", filePath.toString());
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filePath.toFile(), true)))) {
-            writer.print(cutting.toString());
+            writer.print(process.toString());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error writing to file \"{0}\"", new Object[]{filePath.toString(), e});
         }
