@@ -77,7 +77,7 @@ public class Processing {
     public int getNrCuttings() {
         return Cutting.sumNumberPieces(cuttings);
     }
-//    public int getNrCuttings() {
+///    public int getNrCuttings() {
 //        return cuttings.stream().mapToInt(Cutting::getNumberPieces).sum();
 //    }
 

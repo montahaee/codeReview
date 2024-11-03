@@ -19,6 +19,14 @@ public class Order {
     private final List<Map.Entry<Pipe, Integer>> items;
 
     /**
+     * Default constructor with default customer and its initialized items.
+     */
+    public Order(){
+        this.customer = new Customer();
+        this.items = new ArrayList<>();
+    }
+
+    /**
      * Creates an Order for a specific customer.
      *
      * @param customer the customer who placed the order
