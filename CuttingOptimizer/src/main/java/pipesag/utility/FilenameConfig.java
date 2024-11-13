@@ -41,7 +41,7 @@ public record FilenameConfig (String prefix) {
      * @return {@code true} if a file with the generated name exists;
      *         {@code false} otherwise
      */
-    boolean isFileExits(@NotNull Path currentPath) {
+    public boolean isFileExits(@NotNull Path currentPath) {
         File[] listOfFiles = currentPath.getParent().toFile().listFiles();
         for (File file : (listOfFiles != null) ? listOfFiles : new File[0]) {
             if (file.isFile()) {
