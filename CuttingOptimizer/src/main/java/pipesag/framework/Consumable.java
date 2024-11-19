@@ -10,7 +10,7 @@ import pipesag.exceptions.FileAccessException;
  *
  * @param <D> The Object that has to be consumed.
  */
-public interface Consumer<D> {
+public interface Consumable<D> {
 
     /**
      * Takes data and writes it to the specified location.

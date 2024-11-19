@@ -5,7 +5,6 @@ import pipesag.utility.CuttingMath;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +28,7 @@ import java.util.logging.Logger;
  *
  * @see Warehouse
  * @see Order
- * @see Processing
+ * @see CuttingProcess
  * @see Cutting
  */
 public class MinOffcutsCalculator {
@@ -55,11 +54,11 @@ public class MinOffcutsCalculator {
      * @param order the {@code Order} to be processed
      * @return the {@code Processing} object representing the optimal solution
      */
-    public Processing calculate(Order order) {
+    public CuttingProcess calculate(Order order) {
         long startTime = System.currentTimeMillis();
         LOGGER.info("Started the optimization of processing procedure ");
         List<Pipe> remainingOrder = order.sortedOrders();
-        Processing[] bestSolution = createEmptySolutionContainer();
+        CuttingProcess[] bestSolution = createEmptySolutionContainer();
         computeOffcuts(order, remainingOrder, bestSolution, null, -1);
         long endTime = System.currentTimeMillis();
         String lineSeparator = System.lineSeparator();
@@ -78,12 +77,12 @@ public class MinOffcutsCalculator {
      * @param currentCuttings the list of current cuttings made
      * @param rest the remaining length of pipe after cuts
      */
-    void computeOffcuts(Order order, List<Pipe> remainingOrder, Processing[] currentlyBestMachining,
+    void computeOffcuts(Order order, List<Pipe> remainingOrder, CuttingProcess[] currentlyBestMachining,
                                      List<Cutting> currentCuttings, double rest) {
 
         if (remainingOrder.isEmpty()) {
             if (isCurrentBetter(currentlyBestMachining[0], currentCuttings)) {
-                currentlyBestMachining[0] = new Processing(order, currentCuttings);
+                currentlyBestMachining[0] = new CuttingProcess(order, currentCuttings);
             }
             return;
         }
@@ -103,7 +102,7 @@ public class MinOffcutsCalculator {
      * @param currentCuttings the list of current cuttings made
      * @param restOrder the remaining length of pipe after cuts
      */
-    private void exploreRemainingLimb(Order order, List<Pipe> remainingOrder, Processing[] currentlyBestCutting,
+    private void exploreRemainingLimb(Order order, List<Pipe> remainingOrder, CuttingProcess[] currentlyBestCutting,
                                       List<Cutting> currentCuttings, double restOrder) {
         remainingOrder.forEach(pipe -> {
             if (restOrder > pipe.getLength() || CuttingMath.almostEqual(restOrder, pipe.getLength())) {
@@ -184,18 +183,18 @@ public class MinOffcutsCalculator {
     /**
      * Checks if the current potential solution is better than the previously best solution.
      *
-     * @param bestProcessing the best {@code Processing} solution found so far
+     * @param bestCuttingProcess the best {@code Processing} solution found so far
      * @param currentCuttings the list of current cuttings made
      * @param rest the remaining length of pipe after cuts
      * @return true if the current potential solution is better, false otherwise
      */
-    private boolean currentPotentialBetter(Processing bestProcessing, List<Cutting> currentCuttings, double rest) {
-        if (bestProcessing == null || currentCuttings == null) {
+    private boolean currentPotentialBetter(CuttingProcess bestCuttingProcess, List<Cutting> currentCuttings, double rest) {
+        if (bestCuttingProcess == null || currentCuttings == null) {
             return true;
         }
         double currentOffcuts = Cutting.sumOffcuts(currentCuttings);
-        double minOffcuts = bestProcessing.getOffcuts();
-        boolean isPotentialBetter = Cutting.sumNumberPieces(currentCuttings) < bestProcessing.getNrCuttings();
+        double minOffcuts = bestCuttingProcess.getOffcuts();
+        boolean isPotentialBetter = Cutting.sumNumberPieces(currentCuttings) < bestCuttingProcess.getNrCuttings();
         isPotentialBetter &= Math.abs(rest) < 0.0000001;
         isPotentialBetter &= Math.abs(currentOffcuts - minOffcuts) <= 0.1;
         isPotentialBetter |= currentOffcuts - minOffcuts < rest;
@@ -205,18 +204,18 @@ public class MinOffcutsCalculator {
     /**
      * Determines if the current cuttings are better than the previously best cuttings.
      *
-     * @param bestProcessing the best {@code Processing} solution found so far
+     * @param bestCuttingProcess the best {@code Processing} solution found so far
      * @param currentCuttings the list of current cuttings made
      * @return true if the current cuttings are better, false otherwise
      */
-    private boolean isCurrentBetter(Processing bestProcessing, List<Cutting> currentCuttings) {
-        if (bestProcessing == null || currentCuttings == null) {
+    private boolean isCurrentBetter(CuttingProcess bestCuttingProcess, List<Cutting> currentCuttings) {
+        if (bestCuttingProcess == null || currentCuttings == null) {
             return true;
         }
         double currentOffcuts = Cutting.sumOffcuts(currentCuttings);
-        double minOffcuts = bestProcessing.getOffcuts();
+        double minOffcuts = bestCuttingProcess.getOffcuts();
         int sumNrPieces = Cutting.sumNumberPieces(currentCuttings);
-        int nrCuttings = bestProcessing.getNrCuttings();
+        int nrCuttings = bestCuttingProcess.getNrCuttings();
         boolean isBetter = Math.abs(currentOffcuts - minOffcuts) <= 0.0001;
         isBetter &=  sumNrPieces < nrCuttings;
         isBetter |= currentOffcuts < minOffcuts;
@@ -228,7 +227,7 @@ public class MinOffcutsCalculator {
      *
      * @return an array containing a single empty {@code Processing} object
      */
-    private Processing[] createEmptySolutionContainer() {
-        return new Processing[]{null}; // Explicitly returns an empty Optional if no solution exists
+    private CuttingProcess[] createEmptySolutionContainer() {
+        return new CuttingProcess[]{null}; // Explicitly returns an empty Optional if no solution exists
     }
 }

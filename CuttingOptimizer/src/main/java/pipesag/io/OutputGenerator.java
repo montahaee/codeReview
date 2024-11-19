@@ -1,7 +1,6 @@
 package pipesag.io;
 
-import pipesag.datastructure.Cutting;
-import pipesag.datastructure.Processing;
+import pipesag.datastructure.CuttingProcess;
 
 /**
  * Represents a generator that processes the given data and produces an output.
@@ -12,9 +11,9 @@ import pipesag.datastructure.Processing;
 public interface OutputGenerator {
 
     /**
-     * Generates an output based on the provided {@link Processing} data.
+     * Generates an output based on the provided {@link CuttingProcess} data.
      *
      * @param process the data to be processed and used for generating the output.
      */
-    public void generate(Processing process);
+    public void generate(CuttingProcess process);
 }

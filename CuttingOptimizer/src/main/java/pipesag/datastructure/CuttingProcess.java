@@ -13,17 +13,19 @@ import java.util.Optional;
  * @see Order
  * @see Cutting
  */
-public class Processing {
+//public class Processing {
+//
+//    private final Order order;
+//    private final List<Cutting> cuttings;
 
-    protected Order order;
-    private List<Cutting> cuttings;
+public record CuttingProcess(Order order, List<Cutting> cuttings) {
 
-    /**
-     * Default constructor.
-     */
-    public Processing() {
-
-    }
+///    /**
+//     * Default constructor.
+//     */
+///    public Processing() {
+//
+//    }
 
     /**
      * Creates a processing operation for a specific order and cutting process list.
@@ -31,7 +33,7 @@ public class Processing {
      * @param order the order to process.
      * @param cuttings the list of cutting processes.
      */
-    public Processing(Order order, List<Cutting> cuttings) {
+    public CuttingProcess(Order order, List<Cutting> cuttings) {
         this.order = new Order(order);
         this.cuttings = new ArrayList<>();
 ///        if(cuttings != null) {
@@ -62,7 +64,7 @@ public class Processing {
         stb.append(order.toString()).append(System.lineSeparator());
         stb.append(Truncation.form("Offcuts: ", true, getOffcuts()));
         stb.append(Truncation.form("Number of Cuttings: ", true, getNrCuttings()));
-        cuttings.forEach(c -> {stb.append(Truncation.form("","s", true, c.toString()));});
+        cuttings.forEach(c -> stb.append(Truncation.form("","s", true, c.toString())));
         if (!cuttings.isEmpty()) {
             stb.delete(stb.length() - System.lineSeparator().length(), stb.length());
         }
@@ -97,7 +99,7 @@ public class Processing {
      * @param that the processing operation to compare with.
      * @return {@code true} if both processing operations have the same quality, {@code false} otherwise.
      */
-    public boolean hasSameQuality(Processing that) {
+    public boolean hasSameQuality(CuttingProcess that) {
         return this.getOffcuts() == that.getOffcuts() && this.getNrCuttings() == that.getNrCuttings();
     }
 
