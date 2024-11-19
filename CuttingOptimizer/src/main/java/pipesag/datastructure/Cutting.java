@@ -28,6 +28,7 @@ public class Cutting {
      */
     public Cutting(Pipe warehousePipe) {
         this(warehousePipe, new ArrayList<>());
+        updateOffcuts();
     }
 
     /**
