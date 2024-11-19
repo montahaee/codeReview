@@ -69,6 +69,13 @@ public class OrderJob {
         this.error = error;
     }
 
+    /**
+     *
+     * @return path to file which provided {@link #order} data.
+     */
+    public String getFilepath() {
+        return filepath;
+    }
 
     /**
      *
