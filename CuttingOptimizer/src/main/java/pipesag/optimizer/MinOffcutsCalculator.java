@@ -1,10 +1,16 @@
 package pipesag.optimizer;
 
 import pipesag.datastructure.*;
+import pipesag.framework.Handler;
+import pipesag.io.DataStream;
+import pipesag.io.OrderJob;
 import pipesag.utility.CuttingMath;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,43 +26,79 @@ import java.util.logging.Logger;
  * based on a given {@code Order} and assesses the effectiveness of each
  * strategy through the calculation of offcuts.
  *
- * <p>Instances of this class can be created by passing a {@code Warehouse}
- * object to the constructor. The main method for calculation is
- * {@code calculate(Order order)}, which processes the provided order and
- * returns a {@code Processing} object that contains the optimal cutting strategy
- * with minimal offcuts.
+ * <p>In addition to its core calculation functionality, this class implements
+ * the {@code Handler} interface to process {@code OrderJob} objects and produce
+ * corresponding {@code CuttingProcess} results. The processed data is transferred
+ * to a {@code LinkedBlockingQueue}, facilitating thread-safe communication and
+ * coordination between producers and consumers in a multithreaded environment.
+ *
+ * <p>Instances of this class can be created by passing a {@code DataStream<OrderJob>}
+ * object to the constructor for order input. An optional constructor allows
+ * integration with an existing {@code LinkedBlockingQueue} to share processed results
+ * between multiple threads or components.
+ *
+ * <p>The main methods include:
+ * <ul>
+ *   <li>{@code calculate(OrderJob orderJob)}: Processes the provided order and
+ *   returns a {@code Processing} object that contains the optimal cutting strategy
+ *   with minimal offcuts.</li>
+ *   <li>{@code handle(Data<OrderJob, CuttingProcess> data)}: Handles the processing
+ *   of an order and places the resulting cutting strategy into the queue.</li>
+ *   <li>{@code run()}: Continuously polls the {@code DataStream} for new orders,
+ *   processes them, and queues the results.</li>
+ * </ul>
  *
  * @see Warehouse
  * @see Order
  * @see CuttingProcess
  * @see Cutting
+ * @see Handler
+ * @see LinkedBlockingQueue
  */
-public class MinOffcutsCalculator {
+public class MinOffcutsCalculator implements Handler<OrderJob, CuttingProcess>, Runnable {
+
 
     private static final Logger LOGGER = Logger.getLogger(MinOffcutsCalculator.class.getName());
 
-    private final Warehouse warehouse;
+    private final DataStream<OrderJob> orderJobDataStream;
+    private final LinkedBlockingQueue<Data<OrderJob, CuttingProcess>> handleQueue;
 
     /**
-     * Constructs a {@code MinOffcutsCalculator} with the specified warehouse.
+     * Constructs a {@code MinOffcutsCalculator} with the specified order job data stream.
      *
-     * @param warehouse the {@code Warehouse} instance containing available pipes
+     * @param orderJobDataStream the data stream containing order jobs to process
      */
-    public MinOffcutsCalculator(Warehouse warehouse) {
-        this.warehouse = warehouse;
+    public MinOffcutsCalculator(DataStream<OrderJob> orderJobDataStream) {
+        this.orderJobDataStream = orderJobDataStream;
+        this.handleQueue = new LinkedBlockingQueue<>();
     }
+
+    /**
+     * Constructs a {@code MinOffcutsCalculator} with the specified order job data stream
+     * and result queue.
+     *
+     * @param orderJobDataStream the data stream containing order jobs to process
+     * @param handleQueue the queue to store processed results in a thread-safe manner
+     */
+    public MinOffcutsCalculator(DataStream<OrderJob> orderJobDataStream, LinkedBlockingQueue<Data<OrderJob, CuttingProcess>> handleQueue) {
+        this.orderJobDataStream = orderJobDataStream;
+        this.handleQueue = handleQueue;
+    }
+
 
     /**
      * Calculates the optimal processing strategy for the given order by minimizing
      * offcuts. This method logs the start and end time of the optimization process
      * and returns the best processing strategy found.
      *
-     * @param order the {@code Order} to be processed
+     * @param issue the {@code OrderJob} that has to be solved.
      * @return the {@code Processing} object representing the optimal solution
      */
-    public CuttingProcess calculate(Order order) {
+    @Override
+    public CuttingProcess solve(OrderJob issue) {
         long startTime = System.currentTimeMillis();
         LOGGER.info("Started the optimization of processing procedure ");
+        Order order = issue.getOrder();
         List<Pipe> remainingOrder = order.sortedOrders();
         CuttingProcess[] bestSolution = createEmptySolutionContainer();
         computeOffcuts(order, remainingOrder, bestSolution, null, -1);
@@ -104,6 +146,7 @@ public class MinOffcutsCalculator {
      */
     private void exploreRemainingLimb(Order order, List<Pipe> remainingOrder, CuttingProcess[] currentlyBestCutting,
                                       List<Cutting> currentCuttings, double restOrder) {
+        Warehouse warehouse = new Warehouse();
         remainingOrder.forEach(pipe -> {
             if (restOrder > pipe.getLength() || CuttingMath.almostEqual(restOrder, pipe.getLength())) {
                 double newRestOrder = restOrder - pipe.getLength();
@@ -170,8 +213,8 @@ public class MinOffcutsCalculator {
      * @return a new list of pipes excluding the specified pipe
      */
     private List<Pipe> ordersWithoutCurrentPipe(List<Pipe> remainingOrder, Pipe pipe) {
-//        List<Pipe> orderPipes = new ArrayList<>(remainingOrder.size());
-//        remainingOrder.forEach(orderPipe -> {
+///        List<Pipe> orderPipes = new ArrayList<>(remainingOrder.size());
+///        remainingOrder.forEach(orderPipe -> {
 //            if (!pipe.equals(orderPipe)) {
 //                orderPipes.add(new Pipe(orderPipe));
 //            }
@@ -202,7 +245,7 @@ public class MinOffcutsCalculator {
     }
 
     /**
-     * Determines if the current cuttings are better than the previously best cuttings.
+     * Determines if the current cuttings are better than the previous best cuttings.
      *
      * @param bestCuttingProcess the best {@code Processing} solution found so far
      * @param currentCuttings the list of current cuttings made
@@ -229,5 +272,66 @@ public class MinOffcutsCalculator {
      */
     private CuttingProcess[] createEmptySolutionContainer() {
         return new CuttingProcess[]{null}; // Explicitly returns an empty Optional if no solution exists
+    }
+
+
+    /**
+     * Represents a warehouse that stores a collection of pipes.
+     *
+     * @see Pipe
+     */
+    private static class Warehouse {
+        private final List<Pipe> pipeList;
+
+        /**
+         * Creates a warehouse with a predefined list of pipes.
+         */
+        public Warehouse() {
+            pipeList = new ArrayList<>();
+            pipeList.add(new Pipe(2));
+            pipeList.add(new Pipe(3));
+            pipeList.add(new Pipe(4));
+            pipeList.add(new Pipe(5));
+        }
+
+        /**
+         * Returns an unmodifiable list of pipes available in the warehouse.
+         *
+         * @return the list of pipes.
+         * @see Collections#unmodifiableList(List)
+         * @see Pipe
+         */
+        public List<Pipe> getPipeList() {
+            return Collections.unmodifiableList(pipeList);
+        }
+    }
+
+    /**
+     *  Starts the thread and gets data from the DataStream provided by the Producer,
+     *  transforms it and wraps the original and transformed data in {@link Data}
+     *  and adds it to the ConcurrentLinkedQueue for the consumer.
+     *  Finishes when input data without filepath are received.
+     */
+    @Override
+    public void run() {
+        Data<OrderJob, CuttingProcess> data;
+
+        HashSet<String> processedData = new HashSet<>();
+        while (true) {
+            OrderJob orderJob = this.orderJobDataStream.take();
+            if (orderJob.getFilepath() == null) {
+                this.handleQueue.add(new Data<>());
+                break;
+            } else if (processedData.contains(orderJob.getFilepath())) {
+                continue;
+            }
+            processedData.add(orderJob.getFilepath());
+            CuttingProcess solution = solve(orderJob);
+
+            data = new Data<>();
+            data.in = orderJob;
+            data.out = solution;
+            this.handleQueue.add(data);
+        }
     }
 }
